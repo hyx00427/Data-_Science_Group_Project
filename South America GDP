@@ -1,0 +1,78 @@
+library(tidyverse)
+library(ggplot2)
+
+setwd("~/Desktop/data sets")
+gdp <- read.csv("~/Desktop/data sets/gdp-per-capita-worldbank.csv")
+neet <- read.csv("~/Desktop/data sets/youth-not-in-education-employment-training.csv")
+continent<- read.csv("~/Desktop/data sets/continents-according-to-our-world-in-data.csv")
+
+colnames(gdp)<- c("Country","Code","Year","GDP")
+colnames(continent)<- c("Country","Code","Year","Continent")
+continent<- continent %>% select(Country,Code,Continent)
+colnames(neet)<-c("Country","Code","Year","Neet")
+
+#Extract South America's gdp and neet data
+
+table_gdp <- inner_join(gdp,continent,join_by(Country,Code))
+SA_gdp <- table_gdp %>% filter(Continent == "South America")%>%
+  select(Country,Code,Year,GDP)
+table_neet <- inner_join(continent,neet,join_by(Country,Code))
+SA_neet <- table_neet %>% filter(Continent == "South America")%>%
+  select(Country,Code,Year,Neet)
+
+#Tast 1: at least 7 per cent gross domestic product growth per annum in 
+#the least developed countries
+#Compare gdp growth per year before 2015 and after 2015
+
+SA_gdp<- SA_gdp%>% group_by(Country)%>%
+  mutate(GDP_growth_rate=(GDP-lag(GDP))/lag(GDP))%>%
+  ungroup()
+p_gdp <- SA_gdp%>% ggplot(aes(x=Year,y=GDP_growth_rate,color=Country))+
+  geom_point(na.rm = TRUE,size=1)
+
+#Divide the data into period before 2015 and after 2015
+SA_gdp2 <- SA_gdp %>%
+  mutate(period = ifelse(Year <= 2015, "1990-2015", "2015-2021"))
+
+p_gdp <- SA_gdp2 %>% 
+  ggplot(aes(x = Year, y = GDP_growth_rate)) +
+  geom_point(aes(color = Country), size = 1, alpha = 0.7, na.rm = TRUE) +
+  
+#1990-2015
+  geom_smooth(
+    data = SA_gdp2 %>% filter(period == "1990-2015"),
+    se = FALSE,
+    linewidth = 1.2,
+    color = "black"
+  ) +
+  
+#2015-2021
+  geom_smooth(
+    data = SA_gdp2 %>% filter(period == "2015-2021"),
+    se = FALSE,
+    linewidth = 1.2,
+    color = "red"
+  ) +
+  
+# Specify the year 2015  
+  geom_vline(xintercept = 2015, color = "red", linewidth = 0.8) +
+  
+  annotate(
+    "text",
+    x = 2015,
+    y = max(SA_gdp2$GDP_growth_rate, na.rm = TRUE),
+    label = "2015",
+    color = "red",
+    vjust = -0.5,
+    fontface = "bold"
+  ) +
+  
+  labs(
+    title = "South America: GDP Growth Trend by Period (1990–2015 vs 2015–2021)",
+    x = "Year",
+    y = "GDP Growth Rate"
+  ) +
+  theme_minimal()+
+  theme(plot.title = element_text(size = 10))
+p_gdp
+
