@@ -12,6 +12,7 @@ GDP_per_capita_world <- read.csv("gdp-per-capita-worldbank.csv",
                                  sep = ",",
                                  stringsAsFactors = F)
 
-youth_not_in_education <- read.csv("youth-not-in-education-employment-training.csv",
+youth_NEET <- read.csv("youth-not-in-education-employment-training.csv",
                                    sep = ",",
+
                                    stringsAsFactors = F)
