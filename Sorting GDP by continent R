@@ -14,16 +14,19 @@ names(continents)
 continents_new <- continents %>% 
   select(-Year) %>% 
   select(-Code)
+#removing unnecessary columns from dataframe "continents"
 
 
 gdp_with_continent <- gdp %>%
   left_join(continents_new, by = "Entity")
+#joining dataframes gdp and continents by country
 
 gdp_list <- split(gdp_with_continent, gdp_with_continent$Continent)
-
 asia_gdp <- gdp_list[["Asia"]]
 europe_gdp <- gdp_list[["Europe"]]
 africa_gdp <- gdp_list[["Africa"]]
 namerica_gdp <- gdp_list[["North America"]]
 samerica_gdp <- gdp_list[["South America"]]
-oceania <- gdp_list[["Oceania"]]
+oceania_gdp <- gdp_list[["Oceania"]]
+#sorting gdp data by continent
+
