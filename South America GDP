@@ -27,8 +27,6 @@ SA_neet <- table_neet %>% filter(Continent == "South America")%>%
 SA_gdp<- SA_gdp%>% group_by(Country)%>%
   mutate(GDP_growth_rate=(GDP-lag(GDP))/lag(GDP))%>%
   ungroup()
-p_gdp <- SA_gdp%>% ggplot(aes(x=Year,y=GDP_growth_rate,color=Country))+
-  geom_point(na.rm = TRUE,size=1)
 
 #Divide the data into period before 2015 and after 2015
 SA_gdp2 <- SA_gdp %>%
@@ -36,7 +34,7 @@ SA_gdp2 <- SA_gdp %>%
 
 p_gdp <- SA_gdp2 %>% 
   ggplot(aes(x = Year, y = GDP_growth_rate)) +
-  geom_point(aes(color = Country), size = 1, alpha = 0.7, na.rm = TRUE) +
+  geom_line(aes(color = Country), linewidth = 0.5, alpha = 0.7, na.rm = TRUE) +
   
 #1990-2015
   geom_smooth(
