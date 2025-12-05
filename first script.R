@@ -12,7 +12,39 @@ GDP_per_capita_world <- read.csv("gdp-per-capita-worldbank.csv",
                                  sep = ",",
                                  stringsAsFactors = F)
 
-youth_NEET <- read.csv("youth-not-in-education-employment-training.csv",
+youth_not_in_education <- read.csv("youth-not-in-education-employment-training.csv",
                                    sep = ",",
                                    stringsAsFactors = F)
+
+# left join the GDP_per_capita_world by the countries_in_education data frame
+left_join_GDP_world <- GDP_per_capita_world %>%
+  left_join(countries_in_continents,
+            join_by("Entity" == "Entity", "Code" == "Code")) %>%
+  rename_with(~ "GDP_per_capita", .cols = 4)    # rename the GDP per capita column to make it easier to work with
+
+# group the GDP values by continents and find the evolution of mean GDP for each continent
+continent_gdp_evolution <- left_join_GDP_world %>%
+  filter(!is.na(Continent)) %>%    # filter N/A values from the continents column
+  group_by(Continent, Year.x) %>%
+  summarise(mean_GDP = mean(GDP_per_capita, na.rm = TRUE))
+
+# plot the evolution of mean GDP for each continent
+ggplot(continent_gdp_evolution, aes(x = Year.x,
+                                    y = mean_GDP,
+                                    color = Continent)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = c(
+    "Africa" = "red",
+    "Asia" = "darkgreen",
+    "Europe" = "gold",
+    "North America" = "green",
+    "Oceania" = "pink",
+    "South America" = "purple")) +
+  labs(x = "Year",
+       y = "Average GDP per capita",
+       title = "Evolution of average GDP per capita  for the continents",
+       color = "Continent") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+  
 
