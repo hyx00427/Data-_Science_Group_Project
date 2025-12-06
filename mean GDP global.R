@@ -21,7 +21,7 @@ left_join_GDP_world <- GDP_per_capita_world %>%
   left_join(countries_in_continents,
             join_by("Entity" == "Entity", "Code" == "Code")) %>%
   rename_with(~ "GDP_per_capita", .cols = 4) %>% # rename the GDP per capita column to make it easier to work with
-  mutate(GDP_growth = (GDP_per_capita - lag(GDP_per_capita)) * 100/ GDP_per_capita)
+  mutate(GDP_growth = (GDP_per_capita - lag(GDP_per_capita)) * 100/ lag(GDP_per_capita))
 
 # group the GDP values by continents and find the evolution of mean GDP for each continent
 continent_gdp_evolution <- left_join_GDP_world %>%
@@ -33,7 +33,7 @@ continent_gdp_evolution <- left_join_GDP_world %>%
 ggplot(continent_gdp_evolution, aes(x = Year.x,
                                     y = mean_GDP_growth,
                                     color = Continent)) +
-  geom_line(linewidth = 0.5) +
+  geom_line(linewidth = 0.8) +
   scale_color_manual(values = c("Africa" = "red",
                                 "Asia" = "darkgreen",
                                 "Europe" = "gold",
@@ -45,7 +45,7 @@ ggplot(continent_gdp_evolution, aes(x = Year.x,
        title = "Average growth of GDP per capita globally",
        color = "Continent") +
   scale_x_continuous(limits = c(1991,2021)) +
-  scale_y_continuous(limits = c(-50, 25)) +
+  scale_y_continuous(limits = c(-15, 15)) +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5,
                                   size = 14,
