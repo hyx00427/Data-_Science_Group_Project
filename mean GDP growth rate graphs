@@ -1,0 +1,106 @@
+library(tidyverse)
+library(ggplot2)
+
+setwd("~/Desktop/data sets")
+
+countries_in_continents <- read.csv("continents-according-to-our-world-in-data.csv",
+                                    sep = ",",
+                                    stringsAsFactors = FALSE)
+
+GDP_per_capita_world <- read.csv("gdp-per-capita-worldbank.csv",
+                                 sep = ",",
+                                 stringsAsFactors = FALSE)
+
+youth_NEET <- read.csv("youth-not-in-education-employment-training.csv",
+                       sep = ",",
+                       stringsAsFactors = FALSE)
+
+# join data
+left_join_GDP_world <- GDP_per_capita_world %>%
+  left_join(countries_in_continents,
+            join_by("Entity" == "Entity", "Code" == "Code")) %>%
+  rename_with(~ "GDP_per_capita", .cols = 4)
+
+# compute GDP growth rate
+GDP_growth_world <- left_join_GDP_world %>%
+  filter(!is.na(Continent)) %>%
+  group_by(Entity) %>%  
+  arrange(Year.x) %>%
+  mutate(GDP_growth_rate = (GDP_per_capita - lag(GDP_per_capita)) / 
+           lag(GDP_per_capita)) %>%
+  ungroup()
+
+# compute mean GDP growth rate by continent
+continent_gdp_growth_evolution <- GDP_growth_world %>%
+  group_by(Continent, Year.x) %>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+
+p100 <- ggplot(continent_gdp_growth_evolution,
+               aes(x = Year.x,
+                   y = mean_GDP_growth,
+                   color = Continent)) +
+  geom_line(linewidth = 0.54) +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  
+  scale_color_manual(values = c(
+    "Africa" = "red",
+    "Asia" = "darkgreen",
+    "Europe" = "gold",
+    "North America" = "green",
+    "Oceania" = "pink",
+    "South America" = "purple"
+  )) +
+  
+  labs(x = "Year",
+       y = "Average GDP Growth Rate",
+       title = "Evolution of Average GDP Growth Rate by Continent",
+       color = "Continent",
+       linetype = "") +   # make the linetype visible in the legend
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  annotate("text",
+           x = 2018,
+           y = 0.055,       # move the label downawrds
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+  
+p100
+
+#-----------------------------------------------
+#divide the big graph into small continent graphs
+p100_small <- ggplot(continent_gdp_growth_evolution,
+                     aes(x = Year.x,
+                         y = mean_GDP_growth,
+                         color = Continent)) +
+  geom_line(linewidth = 0.6) +
+  geom_hline(yintercept = 0.07,
+             linetype = "dashed",
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.4,
+             color = "red") + 
+  facet_wrap(~ Continent, scales = "free_y") +
+  scale_color_discrete(guide = "none") +
+  labs(x = "Year",
+       y = "Average GDP Growth Rate",
+       title = "Average GDP Growth Rate by Continent") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+
+  annotate("text",
+           x = 2015,
+           y = 0.05,   # move the label downwards
+           label = "7%",
+           hjust = -0.2,
+           vjust = 0,
+           size = 3.5)
+
+p100_small
