@@ -1,0 +1,67 @@
+library(tidyverse)
+library(ggplot2)
+
+setwd("~/Desktop/data sets")
+
+countries_in_continents <- read.csv("continents-according-to-our-world-in-data.csv",
+                                    sep = ",",
+                                    stringsAsFactors = FALSE)
+
+youth_NEET <- read.csv("youth-not-in-education-employment-training.csv",
+                       sep = ",",
+                       stringsAsFactors = FALSE)
+
+# rename column
+youth_NEET <- youth_NEET %>%
+  rename_with(~ "NEET_rate", .cols = 4)
+
+# join data
+left_join_NEET_world <- youth_NEET %>%
+  left_join(countries_in_continents,
+            join_by("Entity" == "Entity", "Code" == "Code"))
+
+# --------------------------------------------------------------
+# compute average neet
+continent_NEET_evolution <- left_join_NEET_world %>%
+  filter(!is.na(Continent)) %>%
+  group_by(Continent, Year.x) %>%
+  summarise(mean_NEET = mean(NEET_rate, na.rm = TRUE), .groups="drop")
+
+
+p_NEET <- ggplot(continent_NEET_evolution,
+                 aes(x = Year.x,
+                     y = mean_NEET,
+                     color = Continent)) +
+  geom_line(linewidth = 0.54) +
+  
+  labs(x = "Year",
+       y = "Average NEET Rate (%)",
+       title = "Evolution of Average Youth NEET Rates by Continent",
+       color = "Continent") +
+  
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p_NEET
+
+
+#-------------------------------------------------
+#divide the big graph into separate small continent graphs
+p_NEET_small <- ggplot(continent_NEET_evolution,
+                         aes(x = Year.x,
+                             y = mean_NEET,
+                             color = Continent)) +
+  geom_line(linewidth = 0.54) +
+  
+  labs(x = "Year",
+       y = "Average NEET Rate (%)",
+       title = "Average Youth NEET Rates by Continent",
+       color = "Continent") +
+  
+  facet_wrap(~ Continent, scales = "free_y") +
+  scale_color_discrete(guide = "none") + #delete labels
+  
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p_NEET_small
