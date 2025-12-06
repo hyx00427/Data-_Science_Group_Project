@@ -11,21 +11,22 @@ youth_NEET <- read.csv("youth-not-in-education-employment-training.csv",
                        sep = ",",
                        stringsAsFactors = FALSE)
 
-# rename column
+#rename column
 youth_NEET <- youth_NEET %>%
   rename_with(~ "NEET_rate", .cols = 4)
 
-# join data
+#join data
 left_join_NEET_world <- youth_NEET %>%
   left_join(countries_in_continents,
             join_by("Entity" == "Entity", "Code" == "Code"))
 
 # --------------------------------------------------------------
-# compute average neet
+#compute average neet
 continent_NEET_evolution <- left_join_NEET_world %>%
   filter(!is.na(Continent)) %>%
   group_by(Continent, Year.x) %>%
-  summarise(mean_NEET = mean(NEET_rate, na.rm = TRUE), .groups="drop")
+  summarise(mean_NEET = mean(NEET_rate, na.rm = TRUE), .groups="drop")%>%
+  filter(Year.x>=1990 & Year.x<=2021)
 
 
 p_NEET <- ggplot(continent_NEET_evolution,
@@ -35,10 +36,10 @@ p_NEET <- ggplot(continent_NEET_evolution,
   geom_line(linewidth = 0.54) +
   
   labs(x = "Year",
-       y = "Average NEET Rate (%)",
-       title = "Evolution of Average Youth NEET Rates by Continent",
+       y = "Youth NEET Rate (%)",
+       title = "Evolution in Average Youth NEET Rate by Continent",
        color = "Continent") +
-  
+
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -54,12 +55,12 @@ p_NEET_small <- ggplot(continent_NEET_evolution,
   geom_line(linewidth = 0.54) +
   
   labs(x = "Year",
-       y = "Average NEET Rate (%)",
-       title = "Average Youth NEET Rates by Continent",
+       y = "Youth NEET Rate (%)",
+       title = "Average Youth NEET Rate by Continent",
        color = "Continent") +
   
   facet_wrap(~ Continent, scales = "free_y") +
-  scale_color_discrete(guide = "none") + #delete labels
+  scale_color_discrete(guide = "none") + # delete labels
   
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
