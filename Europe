@@ -1,0 +1,63 @@
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+
+gdp <- read.csv("desktop/data_sets/gdp-per-capita-worldbank.csv")
+unemployment <- read.csv("desktop/data_sets/youth-not-in-education-employment-training.csv")
+continents <- read.csv("desktop/data_sets/continents-according-to-our-world-in-data.csv")
+
+names(gdp)
+names(continents)
+
+continents_new <- continents %>% 
+  select(-Year) %>% 
+  select(-Code)
+#removing unnecessary columns from dataframe "continents"
+
+
+gdp_with_continent <- gdp %>%
+  left_join(continents_new, by = "Entity")
+#joining dataframes gdp and continents by country
+
+gdp_list <- split(gdp_with_continent, gdp_with_continent$Continent)
+asia_gdp <- gdp_list[["Asia"]]
+europe_gdp <- gdp_list[["Europe"]]
+africa_gdp <- gdp_list[["Africa"]]
+namerica_gdp <- gdp_list[["North America"]]
+samerica_gdp <- gdp_list[["South America"]]
+oceania_gdp <- gdp_list[["Oceania"]]
+#sorting gdp data by continent
+
+least_dev_europe <- europe_gdp %>%
+  filter(Entity %in% c("Ukraine", "Kosovo", "Albania", "North Macedonia", "Belarus"))
+#selecting least developed countries in europe
+
+least_dev_europe <- least_dev_europe %>%
+  rename(GDP_per_capita = GDP.per.capita..PPP..constant.2017.international...) %>%
+  rename(Country = Entity)
+#renaming column headers to remove syntactic names
+
+least_dev_europe <- least_dev_europe %>%
+  arrange(Country, Year) %>%
+  group_by(Country) %>%
+  mutate(
+    gdp_growth = (GDP_per_capita / lag(GDP_per_capita) - 1) * 100
+  ) %>%
+  ungroup()
+#calculating change in gdp per capita by year
+
+least_dev_europe_clean <- least_dev_europe %>%
+  filter(!if_any(everything(), is.na))
+#removing null data
+
+ggplot(least_dev_europe_clean, aes(x = Year, y = gdp_growth, color = Country)) +
+  geom_line(size = 0.5) +
+  geom_hline(yintercept = 7, linetype = "dashed", color = "red") +
+  xlab("Year") +
+  ylab("GDP per capita") +
+  ggtitle("GDP per capita Growth Rate (least developed countries)") +
+  scale_x_log10() +
+  theme(legend.position = c(0.8, 0.2)) +
+  theme_classic()
+#plotting change in gdp per capita by year
