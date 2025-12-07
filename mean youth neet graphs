@@ -34,12 +34,11 @@ p_NEET <- ggplot(continent_NEET_evolution,
                      y = mean_NEET,
                      color = Continent)) +
   geom_line(linewidth = 0.54) +
-  
   labs(x = "Year",
        y = "Youth NEET Rate (%)",
        title = "Evolution in Average Youth NEET Rate by Continent",
        color = "Continent") +
-
+  scale_x_continuous(limits = c(1990,2021)) +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
