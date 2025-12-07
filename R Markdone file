@@ -1,0 +1,562 @@
+---
+title: "C4_Rmarkdown"
+author: "Chris, Raoza, Katharine, Kartik"
+date: "`r Sys.Date()`"
+output: html_document
+---
+<style>
+h1 { font-size: 36px; font-weight: bold; }
+h2 { font-size: 30px; font-weight: bold; }
+p  { font-size: 18px; }
+</style>
+
+Comparison of GDP per capita Growth Rate across six continents
+```{r}
+library(tidyverse)
+library(ggplot2)
+
+setwd("~/Desktop/data sets")
+
+countries_in_continents <- read.csv("continents-according-to-our-world-in-data.csv",
+                                    sep = ",",
+                                    stringsAsFactors = FALSE)
+
+GDP_per_capita_world <- read.csv("gdp-per-capita-worldbank.csv",
+                                 sep = ",",
+                                 stringsAsFactors = FALSE)
+
+youth_NEET <- read.csv("youth-not-in-education-employment-training.csv",
+                       sep = ",",
+                       stringsAsFactors = FALSE)
+
+#join data
+left_join_GDP_world <- GDP_per_capita_world %>%
+  left_join(countries_in_continents,
+            join_by("Entity" == "Entity", "Code" == "Code")) %>%
+  rename_with(~ "GDP_per_capita", .cols = 4)
+
+#compute GDP growth rate
+GDP_growth_world <- left_join_GDP_world %>%
+  filter(!is.na(Continent)) %>%
+  group_by(Entity) %>%  
+  arrange(Year.x) %>%
+  mutate(GDP_growth_rate = (GDP_per_capita - lag(GDP_per_capita)) / 
+           lag(GDP_per_capita)) %>%
+  ungroup()
+
+#compute mean GDP growth rate by continent
+continent_gdp_growth_evolution <- GDP_growth_world %>%
+  group_by(Continent, Year.x) %>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+
+p1 <- ggplot(continent_gdp_growth_evolution,
+               aes(x = Year.x,
+                   y = mean_GDP_growth,
+                   color = Continent)) +
+  geom_line(na.rm=TRUE,linewidth = 0.54) +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  
+  scale_color_manual(values = c(
+    "Africa" = "red",
+    "Asia" = "darkgreen",
+    "Europe" = "gold",
+    "North America" = "green",
+    "Oceania" = "pink",
+    "South America" = "purple"
+  )) +
+  
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Evolution of Average GDP per capita Growth Rate by Continent",
+       color = "Continent",
+       linetype = "") +   # make the linetype visible in the legend
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+  annotate("text",
+           x = 2018,
+           y = 0.055,       # move the label downawrds
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+  
+p1
+```
+
+Separate GDP per capita Growth Rate graph of six continents
+```{r}
+#divide the big graph into small continent graphs
+p1_small <- ggplot(continent_gdp_growth_evolution,
+                     aes(x = Year.x,
+                         y = mean_GDP_growth,
+                         color = Continent)) +
+  geom_line(na.rm=TRUE,linewidth = 0.6) +
+  geom_hline(yintercept = 0.07,
+             linetype = "dashed",
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.4,
+             color = "red") + 
+  facet_wrap(~ Continent, scales = "free_y") +
+  scale_color_discrete(guide = "none") +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Average GDP per capita Growth Rate by Continent") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+
+  annotate("text",
+           x = 2015,
+           y = 0.05,   # move the label downwards
+           label = "7%",
+           hjust = -0.2,
+           vjust = 0,
+           size = 3.5)
+
+p1_small
+
+```
+
+Evolution of Average GDP per capital Growth Rate in Africa
+& Least developed countries in Africa
+```{r}
+#draw graph of Africa
+Af_mean_growth_rate <-GDP_growth_world%>%filter(Continent == "Africa")%>%
+  group_by(Year.x)%>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+p_Af <- Af_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
+  geom_line(linewidth = 0.8,na.rm=TRUE,color="red") +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Evolution of Average GDP per capital Growth Rate in Africa",
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+  annotate("text",
+           x = 2018,
+           y = 0.06,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+p_Af
+
+#select least developed countries
+
+LDC_countries <- c(
+  "Angola", "Benin", "Burkina Faso", "Burundi", "Central African Republic",
+  "Chad", "Comoros", "Democratic Republic of Congo", "Djibouti", "Eritrea",
+  "Ethiopia", "Gambia", "Guinea", "Guinea-Bissau", "Lesotho", "Liberia",
+  "Madagascar", "Malawi", "Mali", "Mauritania", "Mozambique", "Niger",
+  "Rwanda", "Senegal", "Sierra Leone", "Somalia", "South Sudan", "Sudan",
+  "Togo", "Uganda", "Tanzania", "Zambia"
+)
+
+Af_LDCs <- GDP_growth_world %>%
+  filter(Entity %in% LDC_countries) %>%
+  filter(!is.na(GDP_growth_rate))
+
+# draw graph of least developed countries in Africa
+p_Af_LDCs <- Af_LDCs%>%ggplot(aes(x=Year.x,y=GDP_growth_rate,color=Entity))+
+  geom_line(
+    linewidth = 0.5,
+    alpha = 0.5
+  ) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Least Developed Countries in Africa",
+       color = "Least Developed Countries in Africa"
+  ) + 
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  annotate("text",
+           x = 2018,
+           y = 0.06,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+
+p_Af_LDCs
+```
+
+
+Evolution of Average GDP per capital Growth Rate in Asia
+& Least developed countries in Asia
+```{r}
+#draw graph of Asia
+A_mean_growth_rate <-GDP_growth_world%>%filter(Continent == "Asia")%>%
+  group_by(Year.x)%>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+p_A <- A_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
+  geom_line(linewidth = 0.8,na.rm=TRUE,color="blue") +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Evolution of Average GDP per capital Growth Rate in Asia",
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+  annotate("text",
+           x = 2018,
+           y = 0.055,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+p_A
+#select least developed countries
+
+A_LDC_countries <- c(
+  "Afghanistan", "Bangladesh", "Cambodia", 
+  "Laos", "Myanmar", "Nepal", "Timor-Leste","Yemen"
+)
+
+#
+A_LDCs <- GDP_growth_world %>%
+  filter(Entity %in% A_LDC_countries) %>%
+  filter(!is.na(GDP_growth_rate))
+
+# draw graph of least developed countries in North America
+p_A_LDCs <- A_LDCs%>%ggplot(aes(x=Year.x,y=GDP_growth_rate,color=Entity))+
+  geom_line(
+    linewidth = 0.5,
+    alpha = 0.5
+  ) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Least Developed Countries in Asia",
+       color = "Least Developed Countries in Asia"
+  ) + 
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  annotate("text",
+           x = 2018,
+           y = 0.08,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+
+p_A_LDCs
+
+```
+
+
+Evolution of Average GDP per capital Growth Rate in Europe
+```{r}
+#draw graph of Europe
+E_mean_growth_rate <-GDP_growth_world%>%filter(Continent == "Europe")%>%
+  group_by(Year.x)%>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+p_E <- E_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
+  geom_line(linewidth = 0.8,na.rm=TRUE,color="pink") +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Evolution of Average GDP per capital Growth Rate in Europe",
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+  annotate("text",
+           x = 2018,
+           y = 0.06,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+p_E
+```
+
+Evolution of Average GDP per capital Growth Rate in North America
+& Least developed countries in North America
+```{r, fig.width=8, fig.height=5}
+#draw graph of North America
+NA_mean_growth_rate <-GDP_growth_world%>%filter(Continent == "North America")%>%
+  group_by(Year.x)%>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+p_NA <- NA_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
+  geom_line(linewidth = 0.8,na.rm=TRUE,color="green") +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Evolution of Average GDP per capital Growth Rate in North America",
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+  annotate("text",
+           x = 2018,
+           y = 0.055,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+p_NA
+#select least developed countries
+
+NA_LDC_countries <- c(
+  "Haiti"
+)
+
+#
+NA_LDCs <- GDP_growth_world %>%
+  filter(Entity %in% NA_LDC_countries) %>%
+  filter(!is.na(GDP_growth_rate))
+
+# draw graph of least developed countries in North America
+p_NA_LDCs <- NA_LDCs%>%ggplot(aes(x=Year.x,y=GDP_growth_rate,color=Entity))+
+  geom_line(
+    linewidth = 0.5,
+    alpha = 0.5
+  ) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Least Developed Country in North America",
+       color = "Least Developed Country in North America"
+  ) + 
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  annotate("text",
+           x = 2018,
+           y = 0.05,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+
+p_NA_LDCs
+```
+
+
+Evolution of Average GDP per capital Growth Rate in Oceania
+& Least developed countries in Oceania
+```{r}
+#draw graph of Oceania
+O_mean_growth_rate <-GDP_growth_world%>%filter(Continent == "Oceania")%>%
+  group_by(Year.x)%>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+p_O <- O_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
+  geom_line(linewidth = 0.8,na.rm=TRUE,color="orange") +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Evolution of Average GDP per capital Growth Rate in Oceania",
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+  annotate("text",
+           x = 2018,
+           y = 0.06,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+p_O
+#select least developed countries
+
+O_LDC_countries <- c(
+  "Kiribati", "Solomon Islands","Tuvalu"
+)
+
+#
+O_LDCs <- GDP_growth_world %>%
+  filter(Entity %in% O_LDC_countries) %>%
+  filter(!is.na(GDP_growth_rate))
+
+# draw graph of least developed countries in Oceania
+p_O_LDCs <- O_LDCs%>%ggplot(aes(x=Year.x,y=GDP_growth_rate,color=Entity))+
+  geom_line(
+    linewidth = 0.5,
+    alpha = 0.5
+  ) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Least Developed Countries in Oceania",
+       color = "Least Developed Countries in Oceania"
+  ) + 
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  annotate("text",
+           x = 2018,
+           y = 0.05,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+
+p_O_LDCs
+```
+
+
+Evolution of Average GDP per capital Growth Rate in South America
+```{r, fig.width=8, fig.height=5}
+#draw graph of South America
+SA_mean_growth_rate <-GDP_growth_world%>%filter(Continent == "South America")%>%
+  group_by(Year.x)%>%
+  summarise(mean_GDP_growth = mean(GDP_growth_rate, na.rm = TRUE))
+
+p_SA <- SA_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
+  geom_line(linewidth = 0.8,na.rm=TRUE,color="#800080") +
+  
+  geom_hline(aes(yintercept = 0.07, linetype = "7% Target Growth Rate"),
+             linewidth = 0.8) +
+  geom_hline(yintercept = 0,
+             linetype = "solid",
+             linewidth = 0.8,
+             color = "red") + 
+  scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
+  labs(x = "Year",
+       y = "GDP per capita Growth Rate",
+       title = "Evolution of Average GDP per capital Growth Rate in South America",
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+  annotate("text",
+           x = 2018,
+           y = 0.06,       # move the label downwards
+           label = "7%",
+           hjust = -0.1,
+           vjust = -0.5,
+           size = 4)
+p_SA
+```
+
+Comparison of Average Youth NEET Rate across six continents
+```{r}
+
+countries_in_continents <- read.csv("continents-according-to-our-world-in-data.csv",
+                                    sep = ",",
+                                    stringsAsFactors = FALSE)
+
+youth_NEET <- read.csv("youth-not-in-education-employment-training.csv",
+                       sep = ",",
+                       stringsAsFactors = FALSE)
+
+#rename column
+youth_NEET <- youth_NEET %>%
+  rename_with(~ "NEET_rate", .cols = 4)
+
+#join data
+left_join_NEET_world <- youth_NEET %>%
+  left_join(countries_in_continents,
+            join_by("Entity" == "Entity", "Code" == "Code"))
+
+#compute average youth NEET rate
+continent_NEET_evolution <- left_join_NEET_world %>%
+  filter(!is.na(Continent)) %>%
+  group_by(Continent, Year.x) %>%
+  summarise(mean_NEET = mean(NEET_rate, na.rm = TRUE), .groups="drop")%>%
+  filter(Year.x>=1990 & Year.x<=2021)
+
+
+p_NEET <- ggplot(continent_NEET_evolution,
+                 aes(x = Year.x,
+                     y = mean_NEET,
+                     color = Continent)) +
+  geom_line(linewidth = 0.54) +
+  
+  labs(x = "Year",
+       y = "Youth NEET Rate (%)",
+       title = "Evolution of Average Youth NEET Rate by Continent",
+       color = "Continent") +
+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))
+
+p_NEET
+
+```
+
+Separate Average Youth NEET Rate graph of six continents
+```{r}
+#divide the big graph into combined small continent graphs
+p_NEET_small <- ggplot(continent_NEET_evolution,
+                         aes(x = Year.x,
+                             y = mean_NEET,
+                             color = Continent)) +
+  geom_line(linewidth = 0.54) +
+  
+  labs(x = "Year",
+       y = "Youth NEET Rate (%)",
+       title = "Average Youth NEET Rate by Continent",
+       color = "Continent") +
+  
+  facet_wrap(~ Continent, scales = "free_y") +
+  scale_color_discrete(guide = "none") + # delete labels
+  
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p_NEET_small
+```
