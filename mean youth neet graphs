@@ -34,19 +34,20 @@ p_NEET <- ggplot(continent_NEET_evolution,
                      y = mean_NEET,
                      color = Continent)) +
   geom_line(linewidth = 0.54) +
+  
   labs(x = "Year",
        y = "Youth NEET Rate (%)",
-       title = "Evolution in Average Youth NEET Rate by Continent",
+       title = "Evolution of Average Youth NEET Rate by Continent",
        color = "Continent") +
-  scale_x_continuous(limits = c(1990,2021)) +
+
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))
 
 p_NEET
 
 
 #-------------------------------------------------
-#divide the big graph into separate small continent graphs
+#divide the big graph into combined small continent graphs
 p_NEET_small <- ggplot(continent_NEET_evolution,
                          aes(x = Year.x,
                              y = mean_NEET,
@@ -65,3 +66,32 @@ p_NEET_small <- ggplot(continent_NEET_evolution,
   theme(plot.title = element_text(hjust = 0.5))
 
 p_NEET_small
+
+#----------------------------------------------------------
+#turn combined small graphs into separate ones
+plot_continent_neet <- function(ct) {
+  df <- filter(continent_NEET_evolution, Continent == ct)
+  ggplot(df, aes(x = Year.x, y = mean_NEET)) +
+    geom_line(color = "#0072B2", linewidth = 0.8) +
+  
+    labs(
+      title = paste0(ct, " — Average Youth NEET Rate"),
+      x = "Year",
+      y = "Youth NEET Rate (%)"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      axis.title = element_text(size = 11),
+      axis.text = element_text(size = 10)
+    )
+}
+
+# generate six individual graphs
+continents_order <- c("Africa","Asia","Europe","North America","Oceania","South America")
+plots_list <- setNames(lapply(continents_order, plot_continent_neet), continents_order)
+
+# print six graphs
+for (ct in continents_order) {
+  print(plots_list[[ct]])
+}
