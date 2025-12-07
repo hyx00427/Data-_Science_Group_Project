@@ -58,11 +58,11 @@ p1 <- ggplot(continent_gdp_growth_evolution,
   
   labs(x = "Year",
        y = "GDP per capita Growth Rate",
-       title = "Evolution in Average GDP per capita Growth Rate by Continent",
+       title = "Evolution of Average GDP per capita Growth Rate by Continent",
        color = "Continent",
        linetype = "") +   # make the linetype visible in the legend
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
   annotate("text",
            x = 2018,
            y = 0.055,       # move the label downawrds
@@ -123,10 +123,10 @@ p_SA <- SA_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
   scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
   labs(x = "Year",
        y = "GDP per capita Growth Rate",
-       title = "South America",
+       title = "Evolution of Average GDP per capital Growth Rate in South America",
   ) + 
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
   annotate("text",
            x = 2018,
            y = 0.06,       # move the label downwards
@@ -154,10 +154,10 @@ p_Af <- Af_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
   scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
   labs(x = "Year",
        y = "GDP per capita Growth Rate",
-       title = "Africa",
+       title = "Evolution of Average GDP per capital Growth Rate in Africa",
   ) + 
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
   annotate("text",
            x = 2018,
            y = 0.06,       # move the label downwards
@@ -230,10 +230,10 @@ p_E <- E_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
   scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
   labs(x = "Year",
        y = "GDP per capita Growth Rate",
-       title = "Europe",
+       title = "Evolution of Average GDP per capital Growth Rate in Europe",
   ) + 
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
   annotate("text",
            x = 2018,
            y = 0.06,       # move the label downwards
@@ -261,10 +261,10 @@ p_O <- O_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
   scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
   labs(x = "Year",
        y = "GDP per capita Growth Rate",
-       title = "Oceania",
+       title = "Evolution of Average GDP per capital Growth Rate in Oceania",
   ) + 
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
   annotate("text",
            x = 2018,
            y = 0.06,       # move the label downwards
@@ -332,10 +332,10 @@ p_NA <- NA_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
   scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
   labs(x = "Year",
        y = "GDP per capita Growth Rate",
-       title = "North America",
+       title = "Evolution of Average GDP per capital Growth Rate in North America",
   ) + 
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
   annotate("text",
            x = 2018,
            y = 0.055,       # move the label downwards
@@ -403,10 +403,10 @@ p_A <- A_mean_growth_rate%>%ggplot(aes(x=Year.x,y=mean_GDP_growth))+
   scale_linetype_manual(values = c("7% Target Growth Rate" = "dashed")) +
   labs(x = "Year",
        y = "GDP per capita Growth Rate",
-       title = "Asia",
+       title = "Evolution of Average GDP per capital Growth Rate in Asia",
   ) + 
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5,face="bold"))+
   annotate("text",
            x = 2018,
            y = 0.055,       # move the label downwards
