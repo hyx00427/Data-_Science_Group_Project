@@ -43,13 +43,23 @@ clean <- data %>%
 ggplot(clean, aes(x = gdp_per_capita, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs GDP", y = "Working Poverty", x = "GDP per Capita") +
   scale_x_log10() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 # 2. Working Poverty vs NEET
 
 ggplot(clean, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs NEET", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 # Each continents graph as having them all one was very clustered
 
@@ -59,11 +69,21 @@ clean_Africa <- data %>%
 
 ggplot(clean_Africa, aes(x = gdp_per_capita, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs GDP in Africa", y = "Working Poverty", x = "GDP per capita") + scale_x_log10() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 ggplot(clean_Africa, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs NEET in Africa", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 clean_Asia <- data %>%
   filter(Continent == "Asia")
@@ -71,11 +91,21 @@ clean_Asia <- data %>%
 ggplot(clean_Asia, aes(x = gdp_per_capita, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs GDP in Asia", y = "Working Poverty", x = "GDP per capita") +
   scale_x_log10() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 ggplot(clean_Asia, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs NEET in Asia", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 
 clean_Europe <- data %>%
@@ -84,11 +114,21 @@ clean_Europe <- data %>%
 ggplot(clean_Europe, aes(x = gdp_per_capita, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs GDP in Europe", y = "Working Poverty", x = "GDP per capita") +
   scale_x_log10() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 ggplot(clean_Europe, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs NEET in Europe", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 
 clean_Oceania <- data %>%
@@ -97,11 +137,21 @@ clean_Oceania <- data %>%
 ggplot(clean_Oceania, aes(x = gdp_per_capita, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs GDP in Oceania", y = "Working Poverty", x = "GDP per capita") +
   scale_x_log10() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 ggplot(clean_Oceania, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs NEET in Oceania", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 
 clean_North_America <- data %>%
@@ -110,11 +160,21 @@ clean_North_America <- data %>%
 ggplot(clean_North_America, aes(x = gdp_per_capita, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs GDP in North America", y = "Working Poverty", x = "GDP per Capita") +
   scale_x_log10() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 ggplot(clean_North_America, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs NEET in North America", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 
 clean_South_America <- data %>%
@@ -123,12 +183,19 @@ clean_South_America <- data %>%
 ggplot(clean_South_America, aes(x = gdp_per_capita, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs GDP in South America", y = "Working Poverty", x = "GDP per capita") +
   scale_x_log10() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
 ggplot(clean_South_America, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
   geom_point() + labs(title = "Working Poverty vs NEET in South America", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(
+    hjust = 0.5,
+    size = 15,
+    face = "bold"
+  ))
 
-ggplot(clean_South_America, aes(x = neet_rate, y = working_poverty, colour = Continent)) +
-  geom_point() + labs(title = "Working Poverty vs NEET in South America", y = "Working Poverty", x = "NEET rate") +
-  theme_minimal()
